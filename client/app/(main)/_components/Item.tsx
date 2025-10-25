@@ -22,7 +22,8 @@ import {
   Plus,
   Trash,
 } from "lucide-react";
-import { useUser } from "@clerk/clerk-react";
+import { useAuth } from "@/components/providers/auth-provider";
+import apiClient, { Document as ApiDocument } from "@/lib/api";
 
 interface ItemProps {
   id?: Id<"documents">;
@@ -49,21 +50,23 @@ export const Item = ({
   onExpand,
   expanded,
 }: ItemProps) => {
-  const { user } = useUser();
+  const { user } = useAuth();
   const router = useRouter();
-  const create = useMutation(api.documents.create);
-  const archive = useMutation(api.documents.archive);
+  // const create = useMutation(api.documents.create);
+  // const archive = useMutation(api.documents.archive);
+
+  
 
   const onArchive = (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     event.stopPropagation();
     if (!id) return;
-    const promise = archive({ id }).then(() => router.push("/documents"));
+    // const promise = archive({ id }).then(() => router.push("/documents"));
 
-    toast.promise(promise, {
-      loading: "Moving to trash...",
-      success: "Note moved to trash!",
-      error: "Failed to archive note.",
-    });
+    // toast.promise(promise, {
+    //   loading: "Moving to trash...",
+    //   success: "Note moved to trash!",
+    //   error: "Failed to archive note.",
+    // });
   };
 
   const handleExpand = (
@@ -77,20 +80,20 @@ export const Item = ({
     event.stopPropagation();
     if (!id) return;
 
-    const promise = create({ title: "Untitled", parentDocument: id }).then(
-      (documentId) => {
-        if (!expanded) {
-          onExpand?.();
-        }
-        router.push(`/documents/${documentId}`);
-      },
-    );
+    // const promise = create({ title: "Untitled", parentDocument: id }).then(
+    //   (documentId) => {
+    //     if (!expanded) {
+    //       onExpand?.();
+    //     }
+    //     router.push(`/documents/${documentId}`);
+    //   },
+    // );
 
-    toast.promise(promise, {
-      loading: "Creating new note",
-      success: "New note created.",
-      error: "Failed to create note.",
-    });
+    // toast.promise(promise, {
+    //   loading: "Creating new note",
+    //   success: "New note created.",
+    //   error: "Failed to create note.",
+    // });
   };
 
   const ChevronIcon = expanded ? ChevronDown : ChevronRight;
@@ -149,7 +152,7 @@ export const Item = ({
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <div className="p-2 text-xs text-muted-foreground">
-                Last edited by: {user?.fullName}
+                Last edited by: {user?.firstName}
               </div>
             </DropdownMenuContent>
           </DropdownMenu>

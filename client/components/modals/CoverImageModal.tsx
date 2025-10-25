@@ -9,21 +9,20 @@ import {
 import { useCoverImage } from "@/hooks/useCoverImage";
 import { SingleImageDropzone } from "@/components/single-image-dropzone";
 import { useState } from "react";
-import { useEdgeStore } from "@/lib/edgestore";
-import { useMutation } from "convex/react";
-// import { api } from "@/convex/_generated/api";
+import { useFileUpload } from "@/hooks/useFileUpload";
+import { useDocument } from "@/hooks/useDocuments";
 import { useParams } from "next/navigation";
-import { Id } from "@/convex/_generated/dataModel";
 
 export const CoverImageModal = () => {
   const params = useParams();
+  const documentId = params.documentId as string;
 
   const [file, setFile] = useState<File>();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // const update = useMutation(api.documents.update);
   const coverImage = useCoverImage();
-  // const { edgestore } = useEdgeStore();
+  const { uploadFile } = useFileUpload();
+  const { updateDocument } = useDocument(documentId);
 
   const onClose = () => {
     setFile(undefined);
@@ -36,19 +35,18 @@ export const CoverImageModal = () => {
       setIsSubmitting(true);
       setFile(file);
 
-      const res = await edgestore.publicFiles.upload({
-        file,
-        options: {
-          replaceTargetUrl: coverImage.url,
-        },
-      });
+      try {
+        const result = await uploadFile(file);
 
-      // await update({
-      //   id: params.documentId as Id<"documents">,
-      //   coverImage: res.url,
-      // });
+        await updateDocument({
+          coverImage: result.url,
+        });
 
-      onClose();
+        onClose();
+      } catch (error) {
+        console.error('Cover image upload error:', error);
+        setIsSubmitting(false);
+      }
     }
   };
 

@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { Id } from "@/convex/_generated/dataModel";
-import { useUser } from "@clerk/clerk-react";
+import { useAuth } from "@/components/providers/auth-provider";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { toast } from "sonner";
@@ -23,9 +23,13 @@ interface MenuProps {
 
 export const Menu = ({ documentId }: MenuProps) => {
   const router = useRouter();
-  const { user } = useUser();
+  const { user } = useAuth();
 
-  const archive = useMutation(api.documents.archive);
+  // const archive = useMutation(api.documents.archive);
+
+  const archive = (id: any) => {
+
+  }
 
   const onArchive = () => {
     const promise = archive({ id: documentId });
@@ -58,7 +62,7 @@ export const Menu = ({ documentId }: MenuProps) => {
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <div className="p-2 text-xs text-muted-foreground">
-          Last edited by {user?.fullName}
+          Last edited by {user?.firstName}
         </div>
       </DropdownMenuContent>
     </DropdownMenu>

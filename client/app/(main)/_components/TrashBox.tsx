@@ -3,20 +3,16 @@
 import { ConfirmModal } from "@/components/modals/ConfirmModal";
 import { Spinner } from "@/components/spinner";
 import { Input } from "@/components/ui/input";
-import { api } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
-import { useMutation, useQuery } from "convex/react";
 import { Search, Trash, Undo } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useTrash } from "@/hooks/useDocuments";
 
 export const TrashBox = () => {
   const router = useRouter();
   const params = useParams();
-  const documents = useQuery(api.documents.getTrash);
-  const restore = useMutation(api.documents.restore);
-  const remove = useMutation(api.documents.remove);
+  const { documents, isLoading, restoreDocument, deleteDocument } = useTrash();
 
   const [search, setSearch] = useState("");
 
@@ -30,10 +26,10 @@ export const TrashBox = () => {
 
   const onRestore = (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-    documentId: Id<"documents">,
+    documentId: string,
   ) => {
     event.stopPropagation();
-    const promise = restore({ id: documentId });
+    const promise = restoreDocument(documentId);
 
     toast.promise(promise, {
       loading: "Restoring note..",
@@ -42,8 +38,8 @@ export const TrashBox = () => {
     });
   };
 
-  const onRemove = (documentId: Id<"documents">) => {
-    const promise = remove({ id: documentId });
+  const onRemove = (documentId: string) => {
+    const promise = deleteDocument(documentId);
 
     toast.promise(promise, {
       loading: "Deleting note..",
@@ -56,7 +52,7 @@ export const TrashBox = () => {
     }
   };
 
-  if (documents === undefined) {
+  if (isLoading) {
     return (
       <div
         className="flex h-full items-center justify-center p-4"

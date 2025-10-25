@@ -10,11 +10,11 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { SignOutButton, useUser } from "@clerk/clerk-react";
 import { ChevronsLeftRight } from "lucide-react";
+import { useAuth } from "@/components/providers/auth-provider";
 
 export const UserItem = () => {
-  const { user } = useUser();
+  const { user, logout } = useAuth();
 
   return (
     <DropdownMenu>
@@ -28,7 +28,7 @@ export const UserItem = () => {
               <AvatarImage src={user?.imageUrl} />
             </Avatar>
             <span className="line-clamp-1 text-start font-medium">
-              {user?.fullName}&apos;s Ideon
+              {user?.firstName} {user?.lastName}&apos;s Ideon
             </span>
           </div>
           <ChevronsLeftRight className="ml-2 h-4 w-4 rotate-90 text-muted-foreground" />
@@ -42,7 +42,7 @@ export const UserItem = () => {
       >
         <div className="flex flex-col space-y-4 p-2">
           <p className="text-xs font-medium leading-none text-muted-foreground">
-            {user?.emailAddresses[0].emailAddress}
+            {user?.email}
           </p>
           <div className="flex items-center gap-x-2">
             <div className="rounded-md bg-secondary p-1">
@@ -52,14 +52,17 @@ export const UserItem = () => {
             </div>
             <div className="space-y-1">
               <p className="line-clamp-1 text-sm">
-                {user?.fullName}&apos;s Ideon
+                {user?.firstName} {user?.lastName}&apos;s Ideon
               </p>
             </div>
           </div>
         </div>
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="w-full cursor-pointer text-muted-foreground">
-          <SignOutButton>Log Out</SignOutButton>
+        <DropdownMenuItem 
+          className="w-full cursor-pointer text-muted-foreground"
+          onClick={logout}
+        >
+          Log Out
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

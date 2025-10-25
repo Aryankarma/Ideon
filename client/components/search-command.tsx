@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { File } from "lucide-react";
-import { useQuery } from "convex/react";
 import { useRouter } from "next/navigation";
-import { useUser } from "@clerk/clerk-react";
+import { useAuth } from "@/components/providers/auth-provider";
+import { useSearch } from "@/hooks/useDocuments";
 
 import {
   CommandDialog,
@@ -14,18 +14,17 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import { useSearch } from "@/hooks/useSearch";
-import { api } from "@/convex/_generated/api";
+import { useSearch as useSearchStore } from "@/hooks/useSearch";
 
 export const SearchCommand = () => {
-  const { user } = useUser();
+  const { user } = useAuth();
   const router = useRouter();
-  const documents = useQuery(api.documents.getSearch);
+  const { documents, isLoading, searchDocuments } = useSearch();
   const [isMounted, setIsMounted] = useState(false);
 
-  const toggle = useSearch((store) => store.toggle);
-  const isOpen = useSearch((store) => store.isOpen);
-  const onClose = useSearch((store) => store.onClose);
+  const toggle = useSearchStore((store) => store.toggle);
+  const isOpen = useSearchStore((store) => store.isOpen);
+  const onClose = useSearchStore((store) => store.onClose);
 
   useEffect(() => {
     setIsMounted(true);
@@ -48,13 +47,22 @@ export const SearchCommand = () => {
     onClose();
   };
 
+  const handleSearch = (query: string) => {
+    if (query.trim()) {
+      searchDocuments(query);
+    }
+  };
+
   if (!isMounted) {
     return null;
   }
 
   return (
     <CommandDialog open={isOpen} onOpenChange={onClose}>
-      <CommandInput placeholder={`Search ${user?.fullName}'s Ideon..`} />
+      <CommandInput 
+        placeholder={`Search ${user?.firstName}'s Ideon...`}
+        onValueChange={handleSearch}
+      />
       <CommandList>
         <CommandEmpty>No results found.</CommandEmpty>
         <CommandGroup heading="Documents">
@@ -63,7 +71,7 @@ export const SearchCommand = () => {
               key={document._id}
               value={document._id}
               title={document.title}
-              onSelect={onSelect}
+              onSelect={() => onSelect(document._id)}
             >
               {document.icon ? (
                 <p className="mr-2 text-[1.125rem]">{document.icon}</p>

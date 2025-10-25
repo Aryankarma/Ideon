@@ -6,14 +6,11 @@ import { useMemo } from "react";
 import { Cover } from "@/components/cover";
 import { Toolbar } from "@/components/toolbar";
 import { Skeleton } from "@/components/ui/skeleton";
-
-// import { api } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
-import { useMutation, useQuery } from "convex/react";
+import { useDocument } from "@/hooks/useDocuments";
 
 interface DocumentIdPageProps {
   params: {
-    documentId: Id<"documents">;
+    documentId: string;
   };
 }
 
@@ -23,23 +20,15 @@ const DocumentIdPage = ({ params }: DocumentIdPageProps) => {
     [],
   );
 
-  // const document = useQuery(api.documents.getById, {
-  //   documentId: params.documentId,
-  // });
-
-
-  const document = null 
-
-  // const update = useMutation(api.documents.update);
+  const { document, isLoading, updateDocument } = useDocument(params.documentId);
 
   const onChange = (content: string) => {
-    // update({
-    //   id: params.documentId,
-    //   content,
-    // });
+    updateDocument({
+      content,
+    });
   };
 
-  if (document === undefined) {
+  if (isLoading) {
     return (
       <div>
         <Cover.Skeleton />
@@ -55,7 +44,7 @@ const DocumentIdPage = ({ params }: DocumentIdPageProps) => {
     );
   }
 
-  if (document === null) {
+  if (!document) {
     return <div>Not found</div>;
   }
 

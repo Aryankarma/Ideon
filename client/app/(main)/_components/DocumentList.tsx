@@ -33,9 +33,11 @@ export const DocumentList = ({
     }));
   };
 
-  const documents = useQuery(api.documents.getSidebar, {
-    parentDocument: parentDocumentId,
-  });
+  // const documents = useQuery(api.documents.getSidebar, {
+  //   parentDocument: parentDocumentId,
+  // });
+
+  const documents: any = []
 
   const onRedirect = (documentId: string) => {
     router.push(`/documents/${documentId}`);

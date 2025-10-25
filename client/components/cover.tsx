@@ -5,11 +5,9 @@ import Image from "next/image";
 import { Button } from "./ui/button";
 import { ImageIcon, X } from "lucide-react";
 import { useCoverImage } from "@/hooks/useCoverImage";
-import { useMutation } from "convex/react";
-import { api } from "@/convex/_generated/api";
+import { useFileUpload } from "@/hooks/useFileUpload";
+import { useDocument } from "@/hooks/useDocuments";
 import { useParams } from "next/navigation";
-import { Id } from "@/convex/_generated/dataModel";
-import { useEdgeStore } from "@/lib/edgestore";
 import { Skeleton } from "./ui/skeleton";
 
 interface CoverImageProps {
@@ -18,21 +16,23 @@ interface CoverImageProps {
 }
 
 export const Cover = ({ url, preview }: CoverImageProps) => {
-  const { edgestore } = useEdgeStore();
-
+  const { deleteFile } = useFileUpload();
   const params = useParams();
+  const documentId = params.documentId as string;
   const coverImage = useCoverImage();
-  const removeCoverImage = useMutation(api.documents.removeCoverImage);
+  const { updateDocument } = useDocument(documentId);
 
   const onRemove = async () => {
     if (url) {
-      await edgestore.publicFiles.delete({
-        url: url,
-      });
+      try {
+        await deleteFile(url);
+        await updateDocument({
+          coverImage: undefined,
+        });
+      } catch (error) {
+        console.error('Error removing cover image:', error);
+      }
     }
-    removeCoverImage({
-      id: params.documentId as Id<"documents">,
-    });
   };
 
   return (

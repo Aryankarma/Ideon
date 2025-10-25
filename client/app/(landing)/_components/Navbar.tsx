@@ -4,18 +4,18 @@ import { useScrollTop } from "@/hooks/useScrollTop";
 import { cn } from "@/lib/utils";
 import { Logo } from "./Logo";
 import { ModeToggle } from "@/components/mode-toggle";
-import { useConvexAuth } from "convex/react";
-import { SignInButton, UserButton } from "@clerk/clerk-react";
+import { useAuth } from "@/components/providers/auth-provider";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/spinner";
 import Link from "next/link";
+import { useState } from "react";
+import { LoginModal } from "@/components/modals/LoginModal";
 
 export const Navbar = () => {
-  // const { isAuthenticated, isLoading } = useConvexAuth();
+  const { isAuthenticated, isLoading, user, logout } = useAuth();
   const scrolled = useScrollTop();
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
-  const isAuthenticated = true
-  const isLoading = false;
   return (
     <nav
       className={cn(
@@ -29,14 +29,19 @@ export const Navbar = () => {
           {isLoading && <Spinner />}
           {!isLoading && !isAuthenticated && (
             <>
-              <SignInButton mode="modal">
-                <Button variant="ghost" size="sm">
-                  Log In
-                </Button>
-              </SignInButton>
-              <SignInButton mode="modal">
-                <Button size="sm">Get Ideon Free</Button>
-              </SignInButton>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => setIsLoginModalOpen(true)}
+              >
+                Log In
+              </Button>
+              <Button 
+                size="sm"
+                onClick={() => setIsLoginModalOpen(true)}
+              >
+                Get Ideon Free
+              </Button>
             </>
           )}
 
@@ -45,12 +50,28 @@ export const Navbar = () => {
               <Button variant="ghost" size="sm" asChild>
                 <Link href="/documents"> Enter Ideon </Link>
               </Button>
-              <UserButton afterSignOutUrl="/" />
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">
+                  {user?.firstName} {user?.lastName}
+                </span>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={logout}
+                >
+                  Logout
+                </Button>
+              </div>
             </>
           )}
           <ModeToggle />
         </div>
       </div>
+      
+      <LoginModal 
+        isOpen={isLoginModalOpen} 
+        onClose={() => setIsLoginModalOpen(false)} 
+      />
     </nav>
   );
 };

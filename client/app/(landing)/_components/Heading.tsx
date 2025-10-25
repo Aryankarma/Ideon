@@ -2,16 +2,15 @@
 
 import { Spinner } from "@/components/spinner";
 import { Button } from "@/components/ui/button";
-import { SignInButton } from "@clerk/clerk-react";
-// import { useConvexAuth } from "convex/react";
+import { useAuth } from "@/components/providers/auth-provider";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
+import { LoginModal } from "@/components/modals/LoginModal";
 
 export const Heading = () => {
-  // const { isAuthenticated, isLoading } = useConvexAuth();
-
-  const isAuthenticated = true
-  const isLoading = false;
+  const { isAuthenticated, isLoading } = useAuth();
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   return (
     <div className="max-w-3xl space-y-4">
@@ -37,13 +36,16 @@ export const Heading = () => {
         </Button>
       )}
       {!isAuthenticated && !isLoading && (
-        <SignInButton mode="modal">
-          <Button>
-            Get Ideon free
-            <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
-        </SignInButton>
+        <Button onClick={() => setIsLoginModalOpen(true)}>
+          Get Ideon free
+          <ArrowRight className="ml-2 h-4 w-4" />
+        </Button>
       )}
+      
+      <LoginModal 
+        isOpen={isLoginModalOpen} 
+        onClose={() => setIsLoginModalOpen(false)} 
+      />
     </div>
   );
 };
